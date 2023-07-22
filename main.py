@@ -1,3 +1,4 @@
+import argparse
 from lyricsgenius import Genius
 from dotenv import load_dotenv
 import os
@@ -15,8 +16,16 @@ def get_lyrics(api_key, song_title, artist_name):
     else:
         print("Song not found.")
 
-api_key = os.getenv('GENIUS_API_KEY')
-song_title = "Bohemian Rhapsody"
-artist_name = "Queen"
+def main():
+    parser = argparse.ArgumentParser(description='Get song lyrics from Genius')
+    parser.add_argument('song_title', help='The title of the song')
+    parser.add_argument('artist_name', help='The name of the artist')
+    
+    args = parser.parse_args()
+    
+    api_key = os.getenv('GENIUS_API_KEY')
+    
+    get_lyrics(api_key, args.song_title, args.artist_name)
 
-get_lyrics(api_key, song_title, artist_name)
+if __name__ == "__main__":
+    main()
