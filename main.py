@@ -1,4 +1,5 @@
 import requests
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 import os
 
@@ -19,7 +20,6 @@ def get_lyrics(api_key, song_title, artist_name):
     response = requests.get(search_url, headers=headers, params=params)
     data = response.json()
     
-    # Check if the response is successful
     if response.status_code == 200 and data["meta"]["status"] == 200:
         hits = data["response"]["hits"]
         if hits:
@@ -33,8 +33,13 @@ def get_lyrics(api_key, song_title, artist_name):
                 song_info = data["response"]["song"]
                 title = song_info["title"]
                 artist = song_info["primary_artist"]["name"]
-                lyrics = song_info["lyrics"]
-                
+                lyrics_url = song_info["url"]
+
+                # Scrape the lyrics using Beautifulsoup
+                page = requests.get(lyrics_url)
+                html = BeautifulSoup(page.text, 'html.parser')
+                lyrics = html.find('div', class_='lyrics').get_text()
+
                 print(f"Title: {title}")
                 print(f"Artist: {artist}")
                 print("Lyrics:\n")
@@ -46,11 +51,11 @@ def get_lyrics(api_key, song_title, artist_name):
     else:
         print("Failed to perform the search.")
 
-# Replace 'YOUR_API_KEY' with your actual Genius API key
-api_key = os.getenv('GENIUS_API_KEY')
-song_title = "Bohemian Rhapsody"
-artist_name = "Queen"
+if __name__ == '__main__':
+    api_key = os.getenv('GENIUS_API_KEY')
+    song_title = "Bohemian Rhapsody"
+    artist_name = "Queen"
 
-x= get_lyrics(api_key, song_title, artist_name)
-
-print(x)
+    lyrics = get_lyrics(api_key, song_title, artist_name)
+    print(lyrics)
+    
